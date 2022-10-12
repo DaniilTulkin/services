@@ -7,7 +7,7 @@ namespace services
     {
         internal ServiceViewModel()
         {
-            ServiceService.GetServices();
+            services = new ObservableCollection<ServiceModel>(ServiceService.GetServices());
         }
 
         private ObservableCollection<ServiceModel> services;
@@ -40,22 +40,22 @@ namespace services
 
         public ICommand Start => new RelayCommand(() =>
         {
-            //MainWindowModelService.Start();
+            ServiceService.ControlService(selectedService, ServiceCommand.Start);
         });
 
         public ICommand Stop => new RelayCommand(() =>
         {
-            //MainWindowModelService.Stop();
+            ServiceService.ControlService(selectedService, ServiceCommand.Stop);
         });
 
         public ICommand Pause => new RelayCommand(() =>
         {
-            //MainWindowModelService.Pause();
+            ServiceService.ControlService(selectedService, ServiceCommand.Pause);
         });
 
         public ICommand Continue => new RelayCommand(() =>
         {
-            //MainWindowModelService.Continue();
+            ServiceService.ControlService(selectedService, ServiceCommand.Continue);
         });
     }
 }
