@@ -30,7 +30,7 @@ namespace services
             return "";
         }
 
-        internal static void ControlService(ServiceModel selectedService, ServiceCommand serviceCommand)
+        internal static void ControlService(ref System.Collections.ObjectModel.ObservableCollection<ServiceModel> services, ServiceModel selectedService, ServiceCommand serviceCommand)
         {
             ServiceController serviceController = selectedService.Controller;
             Mouse.OverrideCursor = Cursors.Wait;
@@ -62,13 +62,44 @@ namespace services
             }
             catch (InvalidOperationException ex)
             {
-                string message = string.Format("{0}, {1}", ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty);
+                string message = string.Format("{0} {1}", ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty);
                 MessageService.ShowError(message, "Invalid Operation Service Controller");
+                RefreshService(ref services, selectedService);
             }
             finally
             {
+                SetProperties(selectedService);
                 Mouse.OverrideCursor = null;
             }
+        }
+
+        private static void RefreshService(ref System.Collections.ObjectModel.ObservableCollection<ServiceModel> services, ServiceModel selectedService)
+        {
+            int index = services.IndexOf(selectedService);
+            ServiceModel newService = GetServices().Where(service => service.Name == selectedService.Name).FirstOrDefault();
+            if (newService != null) services[index] = newService;
+        }
+
+        internal static void SetProperties(ServiceModel serviceModel)
+        {
+            ServiceController controller = serviceModel.Controller;
+
+            serviceModel.Status = controller.Status switch
+            {
+                ServiceControllerStatus.ContinuePending => "Continue Pending",
+                ServiceControllerStatus.Paused => "Paused",
+                ServiceControllerStatus.PausePending => "Pause Pending",
+                ServiceControllerStatus.StartPending => "Start Pending",
+                ServiceControllerStatus.Running => "Running",
+                ServiceControllerStatus.Stopped => "Stopped",
+                ServiceControllerStatus.StopPending => "Stop Pending",
+                _ => "Unknown status",
+            };
+
+            serviceModel.EnableStart = controller.Status == ServiceControllerStatus.Stopped;
+            serviceModel.EnableStop = controller.Status == ServiceControllerStatus.Running;
+            serviceModel.EnablePause = controller.Status == ServiceControllerStatus.Running && controller.CanPauseAndContinue;
+            serviceModel.EnableContinue = controller.Status == ServiceControllerStatus.Paused;
         }
     }
 }

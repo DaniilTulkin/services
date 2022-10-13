@@ -40,22 +40,22 @@ namespace services
 
         public ICommand Start => new RelayCommand(() =>
         {
-            ServiceService.ControlService(selectedService, ServiceCommand.Start);
+            ServiceService.ControlService(ref services, selectedService, ServiceCommand.Start);
         });
 
         public ICommand Stop => new RelayCommand(() =>
         {
-            ServiceService.ControlService(selectedService, ServiceCommand.Stop);
+            ServiceService.ControlService(ref services, selectedService, ServiceCommand.Stop);
         });
 
         public ICommand Pause => new RelayCommand(() =>
         {
-            ServiceService.ControlService(selectedService, ServiceCommand.Pause);
+            ServiceService.ControlService(ref services, selectedService, ServiceCommand.Pause);
         });
 
         public ICommand Continue => new RelayCommand(() =>
         {
-            ServiceService.ControlService(selectedService, ServiceCommand.Continue);
+            ServiceService.ControlService(ref services, selectedService, ServiceCommand.Continue);
         });
     }
 }
